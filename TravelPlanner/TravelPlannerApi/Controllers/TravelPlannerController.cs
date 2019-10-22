@@ -16,11 +16,11 @@ namespace TravelPlannerApi.Controllers
     {
 
         private readonly ILogger<TravelPlannerController> _logger;
-        private static HttpClient HttpClient
-            = new HttpClient() { BaseAddress = new Uri("https://cddataexchange.blob.core.windows.net/data-exchange/htl-homework/travelPlan.json") };
+        private readonly HttpClient client;
 
-        public TravelPlannerController(ILogger<TravelPlannerController> logger)
+        public TravelPlannerController(ILogger<TravelPlannerController> logger, IHttpClientFactory httpClientFactory)
         {
+            client = httpClientFactory.CreateClient();
             _logger = logger;
         }
 
@@ -28,7 +28,7 @@ namespace TravelPlannerApi.Controllers
         [Route("travelPlan")]
         public async Task<ActionResult> Get([FromQuery] string from, [FromQuery] string to, [FromQuery] string start)
         {
-            var routesResponse = await HttpClient.GetAsync("");
+            var routesResponse = await client.GetAsync("https://cddataexchange.blob.core.windows.net/data-exchange/htl-homework/travelPlan.json");
             routesResponse.EnsureSuccessStatusCode();
             var json = await routesResponse.Content.ReadAsStringAsync();
             var routes = JsonSerializer.Deserialize<IEnumerable<Route>>(json);
